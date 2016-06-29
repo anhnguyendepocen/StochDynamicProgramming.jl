@@ -1,1 +1,286 @@
-Documentation for SDDP
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>StochDynamicProgramming &mdash; StochDynamicProgramming - A Julia implementation of SDDP 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="StochDynamicProgramming - A Julia implementation of SDDP 0.1 documentation" href="#"/>
+        <link rel="next" title="Installation guide" href="install.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> StochDynamicProgramming - A Julia implementation of SDDP
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Step-by-step example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Advanced functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install_windows.html">Install StochDynamicProgramming on Windows</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="#">StochDynamicProgramming - A Julia implementation of SDDP</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>StochDynamicProgramming</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="stochdynamicprogramming">
+<h1>StochDynamicProgramming<a class="headerlink" href="#stochdynamicprogramming" title="Permalink to this headline">¶</a></h1>
+<p>This package implements the Stochastic Dual Dynamic Programming (SDDP) algorithm with Julia. It relies upon <a class="reference external" href="http://mathprogbasejl.readthedocs.org/en/latest/">MathProgBase</a> and <a class="reference external" href="http://jump.readthedocs.org/en/latest/">JuMP</a>.</p>
+<p>A complete overview of this algorithm could be found <a class="reference external" href="http://www2.isye.gatech.edu/people/faculty/Alex_Shapiro/ONS-FR.pdf">here</a>.</p>
+<p>At the moment the plan is to create a type such that :</p>
+<ul class="simple">
+<li>you can fix linear time <span class="math">\(t\)</span> cost function (then convex piecewise linear)</li>
+<li>you can fix linear dynamic (with a physical state <span class="math">\(x\)</span> and a control <span class="math">\(u\)</span>)</li>
+<li>the scenarios are created by assuming that the noise <span class="math">\(\xi_t\)</span> is independent in time, each given by a table (value, probability)</li>
+</ul>
+<p>Then it is standard SDDP :</p>
+<ul class="simple">
+<li>fixed number of forward passes</li>
+<li>iterative backward passes</li>
+<li>no clearing of cuts</li>
+<li>stopping after a given number of iterations / computing time</li>
+</ul>
+<p>Once solved the SDDP model should be able to :</p>
+<ul class="simple">
+<li>give the lower bound on the cost</li>
+<li>simulate trajectories to evaluate expected cost</li>
+<li>give the optimal control given current time state and noise</li>
+</ul>
+<p>We have a lot of ideas to implement further :</p>
+<ul class="simple">
+<li>spatial construction (i.e : defining stock one by one and then their interactions)</li>
+<li>noise as AR (eventually with fitting on historic datas)</li>
+<li>convex solvers</li>
+<li>refined stopping rules</li>
+<li>cut pruning</li>
+<li>paralellization</li>
+</ul>
+<div class="section" id="contents">
+<h2>Contents:<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#stochdynamicprogramming-installation">StochDynamicProgramming installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#install-a-linear-programming-solver">Install a linear programming solver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#run-unit-tests">Run Unit-Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Step-by-step example</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#use-case">Use case</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#problem-definition-in-julia">Problem definition in Julia</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#dynamic">Dynamic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#cost">Cost</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#noises">Noises</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#bounds">Bounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#problem-definition">Problem definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#solver">Solver</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#find-optimal-controls">Find optimal controls</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Advanced functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#work-with-polyhedralfunction">Work with PolyhedralFunction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial.html#get-bellman-value-at-a-given-point">Get Bellman value at a given point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial.html#get-optimal-control-at-a-given-point">Get optimal control at a given point</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#save-and-load-pre-computed-cuts">Save and load pre-computed cuts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#build-lp-models-with-polyhedralfunctions">Build LP Models with PolyhedralFunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#sddp-hotstart">SDDP hotstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#cuts-pruning">Cuts pruning</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install_windows.html">Install StochDynamicProgramming on Windows</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install_windows.html#installing-julia">Installing Julia</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install_windows.html#installing-the-package-in-julia">Installing the package in Julia</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="install_windows.html#compiling-the-doc">Compiling the doc</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="install_windows.html#installing-python-and-sphinx">Installing Python and Sphinx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install_windows.html#installing-mingw">Installing MinGW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install_windows.html#id1">Compiling the doc</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="install_windows.html#have-a-nice-use">Have a nice use</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="install.html" class="btn btn-neutral float-right" title="Installation guide" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, leclerev.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
