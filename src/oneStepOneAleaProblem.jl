@@ -87,19 +87,14 @@ function solve_one_step_one_alea(model,
                                  xt::Vector{Float64},
                                  xi::Vector{Float64},
                                  init=false::Bool)
-    m = get_lpmodel(model, param, V, t)
+    m = get_lpmodel(model, param, V, t, xi, xt)
     # Get var defined in JuMP.model:
     u = getvariable(m, :u)
-    w = getvariable(m, :w)
     alpha = getvariable(m, :alpha)
 
     # Update value of w:
-    setvalue(w, xi)
 
     # Update constraint x == xt
-    for i in 1:model.dimStates
-        JuMP.setRHS(m.ext[:cons][i], xt[i])
-    end
 
     status = solve(m)
     solved = (status == :Optimal)
@@ -123,7 +118,7 @@ end
 
 
 
-function get_lpmodel(model, param, Vt, t)
+function get_lpmodel(model, param, Vt, t, w, xt)
     m = Model(solver=param.solver)
 
     nx = model.dimStates
@@ -135,8 +130,7 @@ function get_lpmodel(model, param, Vt, t)
     @variable(m,  model.xlim[i][1] <= xf[i=1:nx]<= model.xlim[i][2])
     @variable(m, alpha)
 
-    @variable(m, w[1:nw] == 0)
-    m.ext[:cons] = @constraint(m, state_constraint, x .== 0)
+    m.ext[:cons] = @constraint(m, state_constraint, x .== xt)
 
     @constraint(m, xf .== model.dynamics(t, x, u, w))
 
