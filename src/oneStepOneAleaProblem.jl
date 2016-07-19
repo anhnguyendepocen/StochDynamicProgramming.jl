@@ -80,4 +80,89 @@ function solve_one_step_one_alea(model,
 
     return solved, result
 end
+function solve_one_step_one_alea(model,
+                                 param,
+                                 V,
+                                 t::Int64,
+                                 xt::Vector{Float64},
+                                 xi::Vector{Float64},
+                                 init=false::Bool)
+    m = get_lpmodel(model, param, V, t)
+    # Get var defined in JuMP.model:
+    u = getvariable(m, :u)
+    w = getvariable(m, :w)
+    alpha = getvariable(m, :alpha)
+
+    # Update value of w:
+    setvalue(w, xi)
+
+    # Update constraint x == xt
+    for i in 1:model.dimStates
+        JuMP.setRHS(m.ext[:cons][i], xt[i])
+    end
+
+    status = solve(m)
+    solved = (status == :Optimal)
+
+    if solved
+        optimalControl = getvalue(u)
+        # Return object storing results:
+        result = NextStep(
+                          model.dynamics(t, xt, optimalControl, xi),
+                          optimalControl,
+                          [getdual(m.ext[:cons][i]) for i in 1:model.dimStates],
+                          getobjectivevalue(m),
+                          getvalue(alpha))
+    else
+        # If no solution is found, then return nothing
+        result = nothing
+    end
+
+    return solved, result
+end
+
+
+
+function get_lpmodel(model, param, Vt, t)
+    m = Model(solver=param.solver)
+
+    nx = model.dimStates
+    nu = model.dimControls
+    nw = model.dimNoises
+
+    @variable(m,  model.xlim[i][1] <= x[i=1:nx] <= model.xlim[i][2])
+    @variable(m,  model.ulim[i][1] <= u[i=1:nu] <=  model.ulim[i][2])
+    @variable(m,  model.xlim[i][1] <= xf[i=1:nx]<= model.xlim[i][2])
+    @variable(m, alpha)
+
+    @variable(m, w[1:nw] == 0)
+    m.ext[:cons] = @constraint(m, state_constraint, x .== 0)
+
+    @constraint(m, xf .== model.dynamics(t, x, u, w))
+
+    if model.equalityConstraints != nothing
+        @constraint(m, model.equalityConstraints(t, x, u, w) .== 0)
+    end
+    if model.inequalityConstraints != nothing
+        @constraint(m, model.inequalityConstraints(t, x, u, w) .<= 0)
+    end
+
+    if typeof(model) == LinearDynamicLinearCostSPmodel
+        @objective(m, Min, model.costFunctions(t, x, u, w) + alpha)
+
+    elseif typeof(model) == PiecewiseLinearCostSPmodel
+        @variable(m, cost)
+
+        for i in 1:length(model.costFunctions)
+            @constraint(m, cost >= model.costFunctions[i](t, x, u, w))
+        end
+        @objective(m, Min, cost + alpha)
+    end
+    for i in 1:Vt.numCuts
+        lambda = vec(Vt.lambdas[i, :])
+        @constraint(m, Vt.betas[i] + dot(lambda, x) <= alpha)
+    end
+
+    return m
+end
 

@@ -39,6 +39,7 @@ scenario according to the current value functions.
 """
 function forward_simulations(model::SPModel,
                             param::SDDPparameters,
+                            V,
                             solverProblems::Vector{JuMP.Model},
                             xi::Array{Float64})
 
@@ -78,7 +79,7 @@ function forward_simulations(model::SPModel,
             status, nextstep = solve_one_step_one_alea(
                                         model,
                                         param,
-                                        solverProblems[t],
+                                        V[t+1],
                                         t,
                                         state_t,
                                         alea_t)
@@ -199,7 +200,7 @@ function backward_pass!(model::SPModel,
                 alea_t  = collect(law[t].support[:, w])
 
                 callsolver += 1
-                solved, nextstep = solve_one_step_one_alea(model, param, solverProblems[t], t, state_t, alea_t)
+                solved, nextstep = solve_one_step_one_alea(model, param, V[t+1], t, state_t, alea_t)
                 if solved
                     subgradient_array[:, w] = nextstep.sub_gradient
                     costs[w] = nextstep.cost

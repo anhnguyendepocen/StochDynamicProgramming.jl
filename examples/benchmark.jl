@@ -207,7 +207,7 @@ function benchmark_sddp()
                                n_assessments)
 
     tic()
-    costs_sddp, stocks = forward_simulations(model, params, pbs, aleas)
+    costs_sddp, stocks = forward_simulations(model, params, V, pbs, aleas)
     texec = toq()
     println("Time to perform simulation: ", texec, "s")
 

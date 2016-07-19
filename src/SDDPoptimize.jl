@@ -89,7 +89,7 @@ function run_SDDP!(model::SPModel,
         # Forward pass
         _, stockTrajectories,_,callsolver_forward = forward_simulations(model,
                             param,
-                            problems,
+                            V, problems,
                             noise_scenarios)
 
 
@@ -190,7 +190,7 @@ function estimate_upper_bound(model::SPModel, param::SDDPparameters,
                                 n_simulation=1000::Int)
 
     aleas = simulate_scenarios(model.noises, n_simulation)
-    costs, stockTrajectories, _ = forward_simulations(model, param, problem, aleas)
+    costs, stockTrajectories, _ = forward_simulations(model, param, V, problem, aleas)
     return upper_bound(costs), costs
 end
 
@@ -198,7 +198,7 @@ end
 function estimate_upper_bound(model::SPModel, param::SDDPparameters,
                                 aleas::Array{Float64, 3},
                                 problem::Vector{JuMP.Model})
-    costs = forward_simulations(model, param, problem, aleas)[1]
+    costs = forward_simulations(model, param, V, problem, aleas)[1]
     return upper_bound(costs), costs
 end
 
