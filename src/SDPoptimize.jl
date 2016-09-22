@@ -9,7 +9,6 @@
 #############################################################################
 
 using ProgressMeter
-using Iterators
 using Interpolations
 
 
@@ -50,8 +49,8 @@ Compute the cartesian products of discretized state and control spaces
 
 """
 function generate_grid(model::SPModel, param::SDPparameters)
-    product_states = product([model.xlim[i][1]:param.stateSteps[i]:model.xlim[i][2] for i in 1:model.dimStates]...)
-    product_controls = product([model.ulim[i][1]:param.controlSteps[i]:model.ulim[i][2] for i in 1:model.dimControls]...)
+    product_states = Base.product([model.xlim[i][1]:param.stateSteps[i]:model.xlim[i][2] for i in 1:model.dimStates]...)
+    product_controls = Base.product([model.ulim[i][1]:param.controlSteps[i]:model.ulim[i][2] for i in 1:model.dimControls]...)
     return product_states, product_controls
 end
 
@@ -182,12 +181,12 @@ function compute_V_given_t(sampling_size, samples, probas, u_bounds, x_bounds,
                                             t, product_states[indx])
         end
     elseif info_struc == "HD"
-        @sync @parallel for indx in 1:length(product_states)
+        for x in product_states
             SDPutils.compute_V_given_x_t_HD(sampling_size, samples, probas,
                                             u_bounds, x_bounds, x_steps, x_dim,
                                             product_controls, dynamics,
                                             constraints, cost, V, Vitp,
-                                            t, product_states[indx])
+                                            t, x)
         end
     else
         error("Information structure should be HD or DH")
@@ -233,8 +232,8 @@ function sdp_compute_value_functions(model::StochDynProgModel,
     #Compute cartesian product spaces
     product_states, product_controls = generate_grid(model, param)
 
-    product_states = collect(product_states)
-    product_controls = collect(product_controls)
+    #product_states = collect(product_states)
+    #product_controls = collect(product_controls)
 
     V = SharedArray{Float64}(zeros(Float64, param.stateVariablesSizes..., TF))
 
